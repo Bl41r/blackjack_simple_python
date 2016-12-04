@@ -30,7 +30,7 @@ class Deck(object):
             for suit in suits:
                 self._deck.append(Card(suit, card))
         if jokers:
-            self._deck += [Card('W', 'Y'), Card('W', 'Z')]
+            self._deck += [Card('Misc.', 'Jkr'), Card('Misc.', 'Jkr')]
 
     def shuffle(self):
         """Shuffle the Deck."""
@@ -192,7 +192,9 @@ if __name__ == '__main__':
                     tmp_input = input('(h)it or (s)tay?: ').lower()
                     if tmp_input == 's':
                         print(game.get_best_value(p))
-                        print('Busted?', game.check_busted(p))
+                        results.append(game.get_best_value(p))
+                        if game.check_busted(p):
+                            print('Busted!')
                         break
                     if tmp_input == 'h' and counter < 3:
                         counter += 1
@@ -200,10 +202,12 @@ if __name__ == '__main__':
                         p.draw_card(deck=game.deck)
                         print(game.show_player_hand(p, show_all=True))
                     else:
-                        print('Command not recognized.')
+                        print('Command not recognized, or have 5 cards.')
                 done = True
 
         # do dealer logic here
         # ...
 
+        print('results: ', results)
+        # continue game?
         game_in_progress = False
