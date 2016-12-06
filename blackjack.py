@@ -21,7 +21,7 @@ class Deck(object):
     def __init__(self, jokers=False):
         """Initialize the Deck class.
 
-        If jokers, 2 cards inserted (X and Y jokers, 'W' for wild)
+        If jokers, 2 cards inserted.
         """
         suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
         cards = [str(x) for x in range(2, 11)] + ['J', 'Q', 'K', 'A']
@@ -30,7 +30,7 @@ class Deck(object):
             for suit in suits:
                 self._deck.append(Card(suit, card))
         if jokers:
-            self._deck += [Card('Misc.', 'Jkr'), Card('Misc.', 'Jkr')]
+            self._deck += [Card('Misc.', 'Jkr1'), Card('Misc.', 'Jkr2')]
 
     def shuffle(self):
         """Shuffle the Deck."""
@@ -45,7 +45,10 @@ class Deck(object):
 
     def peek(self):
         """Peek at the top card of the Deck."""
-        return self._deck[0]
+        try:
+            return self._deck[0]
+        except IndexError:
+            raise IndexError('Deck is out of cards.')
 
 
 class Player(object):
@@ -135,9 +138,9 @@ class BlackJackGame(object):
 
     def show_table(self):
         """Show the cards on the table."""
-        print('------------------')
+        print('------------------' * 2)
         print('Here is the table:')
-        print('------------------')
+        print('------------------' * 2)
         print('{}: {}, (face-down card)'.format(self.dealer.name,
               self.show_player_hand(self.dealer)))
 
@@ -175,10 +178,21 @@ if __name__ == '__main__':
     game_in_progress = True
 
     while game_in_progress:
+        bets = []
+        for player in players:
+            b = 0
+            print('{}, you have {} dollars.'.format(player.name, player.bank))
+            if player.bank > 0:
+                while b <= 0 or b > player.bank:
+                    b = int(input('{}, How much would you like to bet? '.format(player.name)))
+                    if b <= 0 or b > player.bank:
+                        print('--- Invalid bet, try again. ---')
+
         print('Dealing...')
         game.start_round()
         game.show_table()
         results = []
+        discard_pile = []
 
         for p in players:
             tmp_input = ''
@@ -195,10 +209,10 @@ if __name__ == '__main__':
                         results.append(game.get_best_value(p))
                         if game.check_busted(p):
                             print('Busted!')
+                        discard_pile += p.hand
                         break
                     if tmp_input == 'h' and counter < 3:
                         counter += 1
-                        print('counter', counter)
                         p.draw_card(deck=game.deck)
                         print(game.show_player_hand(p, show_all=True))
                     else:
@@ -209,5 +223,7 @@ if __name__ == '__main__':
         # ...
 
         print('results: ', results)
+        game.deck._deck += discard_pile
+
         # continue game?
         game_in_progress = False
