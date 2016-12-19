@@ -144,9 +144,9 @@ class BlackJackGame(object):
         print('{}: {}, (face-down card)'.format(self.dealer.name,
               self.show_player_hand(self.dealer)))
 
-        for player in self.players:
-            print('{}: {}'.format(player.name,
-                  self.show_player_hand(player, show_all=True)))
+        for p in self.players:
+            print('{}: {}'.format(p.name,
+                  self.show_player_hand(p, show_all=True)))
 
         print('------------------' * 2)
 
@@ -159,71 +159,79 @@ class BlackJackGame(object):
 
 if __name__ == '__main__':
     """The game logic."""
-    u_input = ''
-    tmp_input = ''
 
-    while u_input not in ['1', '2', '3']:
-        u_input = input('How many players?  (max of 3): ')
+    try:
+        input = raw_input
+    except:
+        pass
 
-    names = []
-    players = []
-    for i in range(int(u_input)):
-        tmp_input = input('Name of player {}?'.format(str(i + 1)))
-        names.append(tmp_input)
-    for name in names:
-        players.append(Player(name=name))
-
-    print('Let\'s start the game!')
-    game = BlackJackGame(players=players)
+    name = input('What is your name? ')
+    print('Welcome, {}.  Let\'s start the game!').format(name)
+    player = Player(name=name)
+    game = BlackJackGame(players=[player])
     game_in_progress = True
 
     while game_in_progress:
-        bets = []
-        for player in players:
-            b = 0
-            print('{}, you have {} dollars.'.format(player.name, player.bank))
-            if player.bank > 0:
-                while b <= 0 or b > player.bank:
-                    b = int(input('{}, How much would you like to bet? '.format(player.name)))
-                    if b <= 0 or b > player.bank:
-                        print('--- Invalid bet, try again. ---')
+        print('You have {} dollars.').format(player.bank)
+        bet = 0
+        while not bet:
+            try:
+                bet = int(input('How much would you like to bet? '))
+                if bet < 0 or bet > player.bank:
+                    bet = 0
+            except:
+                pass
 
         print('Dealing...')
         game.start_round()
         game.show_table()
-        results = []
-        discard_pile = []
 
-        for p in players:
-            tmp_input = ''
-            done = False
-            while (not done) and p.bank > 0:
-                print('{}, it is your turn.'.format(p.name))
-                print(game.show_player_hand(p, show_all=True))
-                counter = 0
+        while True:
+            print(game.show_player_hand(player, show_all=True))
+            counter = 0
 
-                while True:
-                    tmp_input = input('(h)it or (s)tay?: ').lower()
-                    if tmp_input == 's':
-                        print(game.get_best_value(p))
-                        results.append(game.get_best_value(p))
-                        if game.check_busted(p):
-                            print('Busted!')
-                        discard_pile += p.hand
-                        break
-                    if tmp_input == 'h' and counter < 3:
-                        counter += 1
-                        p.draw_card(deck=game.deck)
-                        print(game.show_player_hand(p, show_all=True))
-                    else:
-                        print('Command not recognized, or have 5 cards.')
-                done = True
+            tmp_input = input('(h)it or (s)tay?: ').lower()
+            if tmp_input == 's':
+                print(game.get_best_value(player))
+                result = game.get_best_value(player)
+                if game.check_busted(player):
+                    print('Busted!  Dealer wins.')
+                break
 
-        # do dealer logic here
-        # ...
+            if tmp_input == 'h' and counter < 3:
+                counter += 1
+                player.draw_card(deck=game.deck)
+                print(game.show_player_hand(player, show_all=True))
 
-        print('results: ', results)
-        game.deck._deck += discard_pile
+            else:
+                print('Command not recognized, or already have 5 cards.')
 
-        # continue game?
-        game_in_progress = False
+        if result != 21 and not game.check_busted(player):
+            dealer_score = game.get_best_value(game.dealer)
+            while dealer_score < 17 and dealer_score < result:
+                game.dealer.draw_card(deck=game.deck)
+                dealer_score = game.get_best_value(game.dealer)
+                print(game.show_player_hand(game.dealer, show_all=True))
+
+            if dealer_score < 22 and dealer_score > result:
+                print('Dealer wins')
+                player.bank -= bet
+            else:
+                print('You win!')
+                player.bank += bet
+
+        elif result == 21:
+            print('You hit 21!  You win.')
+            player.bank += bet
+
+        else:
+            print('Dealer wins...')
+            player.bank -= bet
+
+        discards = player.hand + game.dealer.hand
+        game.deck._deck.extend(discards)
+        player.hand, game.dealer.hand = [], []
+
+        if player.bank <= 0:
+            print('Game Over!')
+            game_in_progress = False
