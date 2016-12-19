@@ -179,7 +179,7 @@ if __name__ == '__main__':
                 bet = int(input('How much would you like to bet? '))
                 if bet < 0 or bet > player.bank:
                     bet = 0
-            except:
+            except ValueError:
                 pass
 
         print('Dealing...')
