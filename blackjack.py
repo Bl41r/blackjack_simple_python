@@ -188,12 +188,14 @@ if __name__ == '__main__':
 
         while True:
             print(game.show_player_hand(player, show_all=True))
-            counter = 0
+            if game.get_best_value(player) == 21:
+                break
 
+            counter = 0
             tmp_input = input('(h)it or (s)tay?: ').lower()
+
             if tmp_input == 's':
                 print(game.get_best_value(player))
-                result = game.get_best_value(player)
                 if game.check_busted(player):
                     print('Busted!  Dealer wins.')
                 break
@@ -202,27 +204,30 @@ if __name__ == '__main__':
                 counter += 1
                 player.draw_card(deck=game.deck)
                 print(game.show_player_hand(player, show_all=True))
-
+                if game.get_best_value(player) == 21:
+                    break
             else:
                 print('Command not recognized, or already have 5 cards.')
 
-        if result != 21 and not game.check_busted(player):
+        result = game.get_best_value(player)
+        if result == 21:
+            print('You hit 21!  You win.')
+            player.bank += bet
+
+        elif not game.check_busted(player):
             dealer_score = game.get_best_value(game.dealer)
+
             while dealer_score < 17 and dealer_score < result:
                 game.dealer.draw_card(deck=game.deck)
                 dealer_score = game.get_best_value(game.dealer)
                 print(game.show_player_hand(game.dealer, show_all=True))
 
-            if dealer_score < 22 and dealer_score > result:
+            if dealer_score < 22 and dealer_score >= result:
                 print('Dealer wins')
                 player.bank -= bet
             else:
                 print('You win!')
                 player.bank += bet
-
-        elif result == 21:
-            print('You hit 21!  You win.')
-            player.bank += bet
 
         else:
             print('Dealer wins...')
