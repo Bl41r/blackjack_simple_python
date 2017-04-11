@@ -166,13 +166,13 @@ if __name__ == '__main__':
         pass
 
     name = input('What is your name? ')
-    print('Welcome, {}.  Let\'s start the game!').format(name)
+    print('Welcome, {}.  Let\'s start the game!'.format(name))
     player = Player(name=name)
     game = BlackJackGame(players=[player])
     game_in_progress = True
 
     while game_in_progress:
-        print('You have {} dollars.').format(player.bank)
+        print('You have {} dollars.'.format(player.bank))
         bet = 0
         while not bet:
             try:
@@ -185,25 +185,23 @@ if __name__ == '__main__':
         print('Dealing...')
         game.start_round()
         game.show_table()
+        counter = 0
 
         while True:
-            print(game.show_player_hand(player, show_all=True))
-            if game.get_best_value(player) == 21:
+            my_hand = game.show_player_hand(player, show_all=True)
+            print(', '.join(str(_) for _ in my_hand))
+
+            if game.get_best_value(player) >= 21:
                 break
 
-            counter = 0
             tmp_input = input('(h)it or (s)tay?: ').lower()
-
             if tmp_input == 's':
-                print(game.get_best_value(player))
-                if game.check_busted(player):
-                    print('Busted!  Dealer wins.')
+                print('Your score:', game.get_best_value(player))
                 break
 
             if tmp_input == 'h' and counter < 3:
                 counter += 1
                 player.draw_card(deck=game.deck)
-                print(game.show_player_hand(player, show_all=True))
                 if game.get_best_value(player) == 21:
                     break
             else:
@@ -220,8 +218,9 @@ if __name__ == '__main__':
             while dealer_score < 17 and dealer_score < result:
                 game.dealer.draw_card(deck=game.deck)
                 dealer_score = game.get_best_value(game.dealer)
-                print(game.show_player_hand(game.dealer, show_all=True))
 
+            dealer_hand = game.show_player_hand(game.dealer, show_all=True)
+            print(', '.join(str(_) for _ in dealer_hand))
             if dealer_score < 22 and dealer_score >= result:
                 print('Dealer wins')
                 player.bank -= bet
@@ -230,6 +229,7 @@ if __name__ == '__main__':
                 player.bank += bet
 
         else:
+            print('Busted!')
             print('Dealer wins...')
             player.bank -= bet
 
