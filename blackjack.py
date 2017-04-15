@@ -220,7 +220,7 @@ if __name__ == '__main__':
                 dealer_score = game.get_best_value(game.dealer)
 
             dealer_hand = game.show_player_hand(game.dealer, show_all=True)
-            print(', '.join(str(_) for _ in dealer_hand))
+            print('Dealer\'s turn:', ', '.join(str(_) for _ in dealer_hand))
             if dealer_score < 22 and dealer_score >= result:
                 print('Dealer wins')
                 player.bank -= bet
