@@ -59,8 +59,7 @@ class Player(object):
         self.hand = []
         self.name = name
         self.bank = bank
-        if dealer:
-            self.dealer = True
+        self.dealer = dealer
 
     def draw_card(self, deck):
         """Draw a card from the top of the Deck."""
@@ -172,6 +171,7 @@ if __name__ == '__main__':
     game_in_progress = True
 
     while game_in_progress:
+        print('')
         print('You have {} dollars.'.format(player.bank))
         bet = 0
         while not bet:
@@ -203,6 +203,7 @@ if __name__ == '__main__':
                 counter += 1
                 player.draw_card(deck=game.deck)
                 if game.get_best_value(player) == 21:
+                    print(', '.join(str(_) for _ in my_hand))
                     break
             else:
                 print('Command not recognized, or already have 5 cards.')
