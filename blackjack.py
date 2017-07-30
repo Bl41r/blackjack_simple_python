@@ -92,7 +92,7 @@ class BlackJackGame(object):
                 player.draw_card(self.deck)
         self.dealer.draw_card(self.deck)
 
-    def show_player_hand(self, player, show_all=False):
+    def get_player_hand(self, player, show_all=False):
         """Show all except first card in a Player's hand."""
         if show_all:
             return player.get_hand()
@@ -141,11 +141,11 @@ class BlackJackGame(object):
         print('Here is the table:')
         print('------------------' * 2)
         print('{}: {}, (face-down card)'.format(self.dealer.name,
-              self.show_player_hand(self.dealer)))
+              self.get_player_hand(self.dealer)))
 
         for p in self.players:
             print('{}: {}'.format(p.name,
-                  self.show_player_hand(p, show_all=True)))
+                  self.get_player_hand(p, show_all=True)))
 
         print('------------------' * 2)
 
@@ -188,7 +188,7 @@ if __name__ == '__main__':
         counter = 0
 
         while True:
-            my_hand = game.show_player_hand(player, show_all=True)
+            my_hand = game.get_player_hand(player, show_all=True)
             print(', '.join(str(_) for _ in my_hand))
 
             if game.get_best_value(player) >= 21:
@@ -220,7 +220,7 @@ if __name__ == '__main__':
                 game.dealer.draw_card(deck=game.deck)
                 dealer_score = game.get_best_value(game.dealer)
 
-            dealer_hand = game.show_player_hand(game.dealer, show_all=True)
+            dealer_hand = game.get_player_hand(game.dealer, show_all=True)
             print('Dealer\'s turn:', ', '.join(str(_) for _ in dealer_hand))
             if dealer_score < 22 and dealer_score >= result:
                 print('Dealer wins')
